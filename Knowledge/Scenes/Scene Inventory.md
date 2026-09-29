@@ -1,15 +1,15 @@
 # Scene Inventory
 
-## Tracked scenes
-
-No Godot scene files (`.tscn` or `.scn`) are present in the inspected `(Game Name)/` project tree.
-
 ## Main scene
 
-No `application/run/main_scene` entry is configured in `project.godot`. Therefore, a main scene is not established by the inspected project configuration.
+`Main.tscn` is the only tracked Godot scene in the inspected project. `project.godot` sets `run/main_scene` to `res://Main.tscn`, making it the configured project entry scene.
 
-## Scene trees and relationships
+### Node tree
 
-There are no scene trees, attached scripts, node paths, scene references, or scene signals to document yet.
+```text
+Main (Node2D)
+```
+
+The scene contains only the root node. It has no child nodes, attached script, or signal connections. No gameplay behavior is defined in this scene.
 
 See [[Project Overview]] and [[Architecture Overview]].
