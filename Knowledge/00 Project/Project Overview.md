@@ -12,21 +12,20 @@ The feature declaration identifies the project's configured Godot feature set. I
 
 ## Current state
 
-The verified project tree is a starter project. It contains project/editor configuration and an SVG icon with its Godot import settings. No scene, script, gameplay system, custom class, or autoload is present in the inspected project directory.
-
-There is no `application/run/main_scene` setting in `project.godot`, and no scene file is tracked in the project tree. A main scene is therefore not configured in the inspected project files.
+The project has one scene, `Main.tscn`, configured as its main scene. It contains a single `Node2D` root named `Main` and no child nodes or attached script. No gameplay systems, custom classes, or autoloads are present in the inspected project files.
 
 ## Project contents
 
+- `Main.tscn` is the configured project entry scene.
 - `.editorconfig` sets UTF-8 as the character encoding.
 - `.gitattributes` asks Git to normalize text files to LF line endings.
 - `.gitignore` excludes Godot's `.godot/` directory and `android/`.
 - `icon.svg` is configured as the project icon.
 - `icon.svg.import` records Godot's texture import settings for that SVG.
-- `project.godot` contains the project identity and development-relevant settings.
+- `project.godot` contains the project identity, main scene, and development-relevant settings.
 
 See [[Development Configuration]], [[Architecture Overview]], [[Scene Inventory]], [[Code Inventory]], [[Project Assets and Resources]], [[Systems Inventory]], [[Unestablished Decisions]], and [[Change Records]] for details.
 
 ## Not yet established
 
-The inspected files do not establish a game concept, target platforms, gameplay, scene flow, architecture beyond project-level configuration, coding conventions beyond UTF-8, or release/build workflow. These are intentionally left open rather than inferred from the placeholder directory name or project name.
+The inspected files do not establish a game concept, target platforms, gameplay, scene flow beyond the configured entry scene, architecture beyond the minimal scene entry point and project settings, coding conventions beyond UTF-8, or release/build workflow. These are intentionally left open rather than inferred from the placeholder directory name or project name.
