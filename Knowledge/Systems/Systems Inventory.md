@@ -2,9 +2,9 @@
 
 ## Current status
 
-No gameplay or technical runtime systems are present in the inspected Godot project files. The project directory has no scenes or scripts from which to verify such systems.
+No gameplay or technical runtime systems are implemented in the inspected project files. The project has a single bare entry scene, `Main.tscn`, whose root is a `Node2D` named `Main`; it has no children or attached script.
 
-This inventory is intentionally a statement of absence in the inspected tree. It does not imply that a system is planned.
+This inventory describes the current tree. It does not imply that a system is planned.
 
 ## Verified project-level configuration
 
@@ -14,4 +14,4 @@ The project settings configure the 3D physics engine as `Jolt Physics`, the Wind
 
 No player, input, combat, movement, UI, save/load, audio, networking, AI, or other gameplay behavior is documented because none can be verified from the available project files.
 
-See [[Architecture Overview]] and [[Development Configuration]].
+See [[Architecture Overview]], [[Scene Inventory]], and [[Development Configuration]].
