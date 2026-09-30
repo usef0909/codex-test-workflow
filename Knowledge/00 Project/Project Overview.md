@@ -12,8 +12,15 @@ The feature declaration identifies the project's configured Godot feature set. I
 
 ## Current state
 
-The project has one scene, `Main.tscn`, configured as its main scene. It contains a single `Node2D` root named `Main` and no child nodes or attached script. No gameplay systems, custom classes, or autoloads are present in the inspected project files.
+`Main.tscn` remains configured as the main scene. It has a `Main` `Node2D` root and instances `Player.tscn` as node `Player`. No gameplay systems, custom classes, or autoloads are present in the inspected project files.
 
+<!-- knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
+### Verified additions from commit `5472bacbe12818379b9a20771885b63ea4725ea0`
+- Scene `res://Player.tscn` exists.
+- Script `res://Player.gd` exists.
+- `res://Main.tscn` instances `res://Player.tscn` as node `Player`.
+- `res://Player.tscn` has root `Player` of type `CharacterBody2D`.
+<!-- /knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
 ## Project contents
 
 - `Main.tscn` is the configured project entry scene.

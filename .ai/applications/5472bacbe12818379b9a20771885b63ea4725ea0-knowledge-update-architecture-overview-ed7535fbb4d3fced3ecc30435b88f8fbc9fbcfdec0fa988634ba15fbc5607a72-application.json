@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "after_sha256": "a747d501e1168326c6b02b47db65958adb96d57371acd7a76430de6b4d0f8a07",
+      "anchor": {
+        "heading_path": [
+          "# Architecture Overview",
+          "## Current shape"
+        ],
+        "occurrence": 1
+      },
+      "before_sha256": "976afd804a31c17cb65081223c0ef334a206f548952a1d1e5ffdad8a15d50a45",
+      "old_passage_sha256": "23da4d4c4238b628c03393877f7fdf1b5f960c9130fdd8106810af2e7268bec1",
+      "operation_id": "6efd92b33c81e8ed",
+      "operation_type": "REPLACE",
+      "path": "Knowledge/Architecture/Architecture Overview.md",
+      "reason": "Replaced only the exact uniquely anchored passage with the renderer-validated Markdown.",
+      "replacement_sha256": "19ab0b900ff922d58ab877b0ae7287b45f83aa24dc76f6711351d26554f1d194",
+      "status": "applied"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "operation_id": "6efd92b33c81e8ed",
+  "operation_type": "REPLACE",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-architecture-overview-ed7535fbb4d3fced3ecc30435b88f8fbc9fbcfdec0fa988634ba15fbc5607a72.md",
+  "proposal_sha256": "b5b8f10c2eb6405ed92c377e169012a0b74ba3908e6b0acfd9b4c72ec881727a",
+  "status": "applied",
+  "target_path": "Knowledge/Architecture/Architecture Overview.md"
+}

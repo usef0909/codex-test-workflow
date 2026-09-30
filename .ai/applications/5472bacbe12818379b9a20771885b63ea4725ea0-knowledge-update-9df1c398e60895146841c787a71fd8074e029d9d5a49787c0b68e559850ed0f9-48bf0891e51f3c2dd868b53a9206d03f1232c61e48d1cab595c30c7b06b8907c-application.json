@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "after_sha256": "03b70e5df1608379f80d12328fda43e793af2d016bf72766ef3658303aa9f8cc",
+      "anchor": {
+        "heading_path": [
+          "# Systems Inventory",
+          "## Current status"
+        ],
+        "occurrence": 1
+      },
+      "before_sha256": "48bf0891e51f3c2dd868b53a9206d03f1232c61e48d1cab595c30c7b06b8907c",
+      "old_passage_sha256": "dbbcd32f4b4877bbeff329d945b58c3dfbe84de4c76084a65b30561bfada1cf0",
+      "operation_id": "5c3ded722d0a4b02",
+      "operation_type": "REPLACE",
+      "path": "Knowledge/Systems/Systems Inventory.md",
+      "reason": "Replaced only the exact uniquely anchored passage with the renderer-validated Markdown.",
+      "replacement_sha256": "300213849baffe14f6b132dfa37988480899d32a08d73b2e12fa7fa7a95589ca",
+      "status": "applied"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "operation_id": "5c3ded722d0a4b02",
+  "operation_type": "REPLACE",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-9df1c398e60895146841c787a71fd8074e029d9d5a49787c0b68e559850ed0f9-48bf0891e51f3c2dd868b53a9206d03f1232c61e48d1cab595c30c7b06b8907c.md",
+  "proposal_sha256": "c9c361a80d4c102cfe964f114964330956258666e8373c66942eda66a893017e",
+  "status": "applied",
+  "target_path": "Knowledge/Systems/Systems Inventory.md"
+}

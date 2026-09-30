@@ -33,12 +33,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Decisions/Unestablished Decisions.md",
+                "file": "00 Project/Project Overview.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Unestablished Decisions"
+              "title": "Project Overview"
             }
           }
         ]
@@ -210,22 +210,22 @@
   },
   "active": "1c7a63844dd62570",
   "lastOpenFiles": [
-    "Scenes/Scene Inventory.md",
+    "Code/Code Inventory.md",
+    "Architecture/Architecture Overview.md",
+    "Systems/Systems Inventory.md",
     "Changes/Change Records.md",
+    "Decisions/Unestablished Decisions.md",
+    "Scenes/Scene Inventory.md",
     "00 Project/Development Configuration.md",
     "00 Project/Project Overview.md",
     "Welcome.md",
-    "Systems/Systems Inventory.md",
     "Systems",
     "Scenes",
-    "Decisions/Unestablished Decisions.md",
     "Decisions",
     "Data/Project Assets and Resources.md",
     "Data",
-    "Code/Code Inventory.md",
     "Code",
     "Changes",
-    "Architecture/Architecture Overview.md",
     "Architecture",
     "00 Project",
     "Descisions"

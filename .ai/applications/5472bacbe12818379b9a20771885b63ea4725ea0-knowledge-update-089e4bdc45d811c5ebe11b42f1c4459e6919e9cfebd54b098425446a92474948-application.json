@@ -1,0 +1,121 @@
+{
+  "changes": [
+    {
+      "after_sha256": "1038fdd6e74aebfb6e5cd6f40d267c2255457371734778b8235af41f25862ea5",
+      "before_sha256": "987a4225fa7e6318861d4a8527737b9197689a79edc092994805d2337762fc38",
+      "facts": [
+        "Input action `move_down` is configured with `physical key S (83)`.",
+        "Input action `move_left` is configured with `physical key A (65)`.",
+        "Input action `move_right` is configured with `physical key D (68)`.",
+        "Input action `move_up` is configured with `physical key W (87)`."
+      ],
+      "path": "Knowledge/00 Project/Development Configuration.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "9426bdf55b434b7fc17dfd3d25a63a8bba3b51d9618fa99baca90d9b18af5015",
+      "before_sha256": "9ef44eba12f7e48d55e136982cda229d6a8c690b883a1de23c8a77ae350d9921",
+      "facts": [
+        "Scene `res://Player.tscn` exists.",
+        "Script `res://Player.gd` exists.",
+        "`res://Main.tscn` instances `res://Player.tscn` as node `Player`.",
+        "`res://Player.tscn` has root `Player` of type `CharacterBody2D`."
+      ],
+      "path": "Knowledge/00 Project/Project Overview.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "a4ef780e89596445278fede44507c821a340d6263d49955e79d4531925ea87be",
+      "before_sha256": "95b9b18ba8fcd55d7323c3cbc55c97bc359ba86ed2e949f13316d753e240c18a",
+      "facts": [
+        "Input action `move_down` is configured with `physical key S (83)`.",
+        "Input action `move_left` is configured with `physical key A (65)`.",
+        "Input action `move_right` is configured with `physical key D (68)`.",
+        "Input action `move_up` is configured with `physical key W (87)`.",
+        "Node `Player` in `res://Player.tscn` attaches `res://Player.gd`.",
+        "`res://Main.tscn` instances `res://Player.tscn` as node `Player`.",
+        "`res://Player.gd` calls `Input.get_vector()`."
+      ],
+      "path": "Knowledge/Architecture/Architecture Overview.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "b1947437636a14e64d65fd57963abce5822b6abbdfc192ecdcd31f50165d78dc",
+      "before_sha256": "45038d48ab6b7ec2726a0871fea4dc17f1d494ac4fc7d6cc6cc14fd9fc8902db",
+      "facts": [
+        "Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `added` of `(Game Name)/Player.gd`.",
+        "Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `added` of `(Game Name)/Player.tscn`.",
+        "Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `modified` of `(Game Name)/Main.tscn`.",
+        "Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `modified` of `(Game Name)/project.godot`."
+      ],
+      "path": "Knowledge/Changes/Change Records.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "bff03a68b5c99353927a06021bb3002ba4f6d7714ee21bd1017e25df045e18c1",
+      "before_sha256": "b0ccb438890b887578753d7c18ec21b62076acfff434e2b67d7867e251647fb5",
+      "facts": [
+        "Script `res://Player.gd` exists.",
+        "`res://Player.gd` calls `Input.get_vector()`.",
+        "`res://Player.gd` calls `move_and_slide()`.",
+        "`res://Player.gd` defines `func _physics_process(_delta: float) -> void:`.",
+        "`res://Player.gd` exports `speed` using `@export var speed: float = 300.0`.",
+        "`res://Player.gd` extends `CharacterBody2D`."
+      ],
+      "path": "Knowledge/Code/Code Inventory.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "a64524fbdafd45d9c555caabe20c3f93d03bc9226febd1e97324adf01f64be5d",
+      "before_sha256": "5599d902892fc4d798fce4aeb00d90cedf1a4d8e478cb4f6e78b871491cbf049",
+      "facts": [
+        "Node `Player` in `res://Player.tscn` attaches `res://Player.gd`.",
+        "Node `Sprite2D` in `res://Player.tscn` assigns `res://icon.svg` to `texture`.",
+        "Scene `res://Player.tscn` exists."
+      ],
+      "path": "Knowledge/Data/Project Assets and Resources.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "51dd2c4694b1557ebeec7e7c5fa9fcb7af9e5c2e114f340c2b2502192d7620ca",
+      "before_sha256": "ab9f914daaf737be70e7574b32adb410e507600c767caab56395c6b2c6500372",
+      "facts": [
+        "Node `Player` in `res://Player.tscn` attaches `res://Player.gd`.",
+        "`res://Main.tscn` instances `res://Player.tscn` as node `Player`.",
+        "`res://Player.tscn` contains child `Sprite2D` (Sprite2D) under `.`.",
+        "`res://Player.tscn` has root `Player` of type `CharacterBody2D`."
+      ],
+      "path": "Knowledge/Scenes/Scene Inventory.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    },
+    {
+      "after_sha256": "31a81a71b6cc1e7f9dfb20d55536a9b740e8d9c47171e4fa864e455bcf7a2f23",
+      "before_sha256": "0d91b6c471dfbf00cbb27e095634fccae4427a37095d271b90a21ebf50132da7",
+      "facts": [
+        "Input action `move_down` is configured with `physical key S (83)`.",
+        "Input action `move_left` is configured with `physical key A (65)`.",
+        "Input action `move_right` is configured with `physical key D (68)`.",
+        "Input action `move_up` is configured with `physical key W (87)`.",
+        "`res://Player.gd` calls `Input.get_vector()`.",
+        "`res://Player.gd` calls `move_and_slide()`.",
+        "`res://Player.gd` defines `func _physics_process(_delta: float) -> void:`.",
+        "`res://Player.gd` extends `CharacterBody2D`."
+      ],
+      "path": "Knowledge/Systems/Systems Inventory.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-089e4bdc45d811c5ebe11b42f1c4459e6919e9cfebd54b098425446a92474948.md",
+  "proposal_sha256": "72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642",
+  "status": "applied"
+}

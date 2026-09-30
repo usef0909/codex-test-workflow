@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "after_sha256": "c978c636c935b9e46c429c676e9139a2ea173bddc8f5b6cd81a0873ac9afb9e1",
+      "anchor": {
+        "heading_path": [
+          "# Project Overview",
+          "## Current state"
+        ],
+        "occurrence": 1
+      },
+      "before_sha256": "9426bdf55b434b7fc17dfd3d25a63a8bba3b51d9618fa99baca90d9b18af5015",
+      "old_passage_sha256": "8afc9063d68e2f215dadb74632e73ed463ecb32b24c2d9dc89343628afbd491f",
+      "operation_id": "635940f7486b78f8",
+      "operation_type": "REPLACE",
+      "path": "Knowledge/00 Project/Project Overview.md",
+      "reason": "Replaced only the exact uniquely anchored passage with the renderer-validated Markdown.",
+      "replacement_sha256": "5ea2d79b51edce4be5f1a1f7a0cf4086059898492bc7e83d9bea0bef3b8ff5bf",
+      "status": "applied"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "operation_id": "635940f7486b78f8",
+  "operation_type": "REPLACE",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-project-overview-1ed604bafa7b318321beaab55a6d922b1fcd091bd60aced10286c51ec91fce46.md",
+  "proposal_sha256": "7b17a22bd54ab5da3f82f8c518dbbf491c74d9df1ac97986ee1381a42dde7c57",
+  "status": "applied",
+  "target_path": "Knowledge/00 Project/Project Overview.md"
+}

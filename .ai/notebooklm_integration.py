@@ -372,12 +372,92 @@ def sync_files(root, paths, states, files, dry_run=False):
 
 
 def all_inspection_reports(root):
-    output = []
-    for path in sorted((root / ".ai" / "changes").glob("*-inspection.md")):
-        match = re.fullmatch(r"([0-9a-f]{40}|[0-9a-f]{64})-inspection\.md", path.name)
+    grouped = {}
+    for path in sorted((root / ".ai" / "changes").glob("*-inspection*.md")):
+        match = re.fullmatch(r"([0-9a-f]{40}|[0-9a-f]{64})-inspection(?:-([0-9a-f]{64}))?\.md", path.name)
         if match and path.is_file():
-            output.append((match.group(1), path))
+            grouped.setdefault(match.group(1), []).append((path, match.group(2)))
+    output = []
+    current = inspector_fingerprint(root)
+    for commit_sha, candidates in sorted(grouped.items()):
+        current_paths = [path for path, embedded in candidates
+                         if embedded == current and inspection_report_fingerprint(path) == current]
+        if len(current_paths) > 1:
+            raise IntegrationError("Multiple current Inspector reports exist for commit {}; resolve the duplicate reports before review.".format(commit_sha))
+        if current_paths:
+            selected = current_paths[0]
+        else:
+            canonical = [path for path, embedded in candidates if embedded is None]
+            selected = canonical[0] if canonical else candidates[0][0]
+        output.append((commit_sha, selected))
     return output
+
+
+def inspector_fingerprint(root):
+    path = root / ".ai" / "change_inspector.py"
+    try:
+        source = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    except OSError as exc:
+        raise IntegrationError("Cannot read Change Inspector implementation for freshness check: {}".format(exc))
+    return hashlib.sha256(source).hexdigest()
+
+
+def inspection_report_fingerprint(path):
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return None
+    match = re.search(r"(?m)^- Inspector fingerprint: `sha256:([0-9a-f]{64})`$", text)
+    return match.group(1) if match else None
+
+
+def ensure_inspection_current(root, report_path, commit_sha):
+    current = inspector_fingerprint(root)
+    found = inspection_report_fingerprint(report_path)
+    if found == current:
+        return
+    if found is None:
+        reason = "the report has no Inspector fingerprint (legacy report)"
+    else:
+        reason = "report fingerprint {} does not match current Inspector {}".format(found, current)
+    parent = run(["git", "rev-parse", "{}^".format(commit_sha)], cwd=root, check=False)
+    parent_sha = parent.stdout.decode("ascii", "replace").strip() if parent.returncode == 0 else "<parent>"
+    try:
+        report_label = report_path.relative_to(root).as_posix()
+    except ValueError:
+        report_label = str(report_path)
+    raise IntegrationError(
+        "Inspection report {} is stale: {}. It was not sent to NotebookLM. "
+        "Regenerate it without replacing the historical report using `python .ai/change_inspector.py --versioned {} {}`."
+        .format(report_label, reason, parent_sha, commit_sha)
+    )
+
+
+def inspection_report_for(root, commit_sha):
+    for found_sha, path in all_inspection_reports(root):
+        if found_sha == commit_sha:
+            return path
+    return root / ".ai" / "changes" / (commit_sha + "-inspection.md")
+
+
+def report_used_by_review(root, commit_sha, entry):
+    """Find the exact report a historical review used, preserving old review identity."""
+    if not isinstance(entry, dict):
+        return None
+    relative = entry.get("inspection_file")
+    if isinstance(relative, str):
+        candidate = (root / Path(relative)).resolve()
+        changes_dir = (root / ".ai" / "changes").resolve()
+        if candidate.parent == changes_dir and candidate.name.startswith(commit_sha + "-inspection") and candidate.is_file():
+            return candidate
+    paths = [root / ".ai" / "changes" / (commit_sha + "-inspection.md")]
+    paths.extend(sorted((root / ".ai" / "changes").glob(commit_sha + "-inspection-*.md")))
+    expected = entry.get("inspection_sha256")
+    if expected:
+        for candidate in paths:
+            if candidate.is_file() and sha256(candidate) == expected:
+                return candidate
+    return None
 
 
 def review_prompt(commit_sha, report_text, knowledge_paths):
@@ -519,8 +599,9 @@ def publish_staged_review(temp_path, review_path, overwrite):
         raise IntegrationError("Could not publish staged review {}: {}".format(review_path.name, exc))
 
 
-def inspection_source_id(root, states, commit_sha, inspection_hash):
-    relative = ".ai/changes/{}-inspection.md".format(commit_sha)
+def inspection_source_id(root, states, commit_sha, inspection_hash, report_path=None):
+    report_path = report_path or (root / ".ai" / "changes" / (commit_sha + "-inspection.md"))
+    relative = report_path.relative_to(root).as_posix()
     entry = states["sources"].get("sources", {}).get(relative, {})
     if isinstance(entry, dict) and entry.get("sha256") == inspection_hash:
         return entry.get("source_id")
@@ -532,6 +613,7 @@ def finish_review_state(root, states, commit_sha, report_path, review_path,
     entry = {
         "commit_sha": commit_sha,
         "review_file": review_path.relative_to(root).as_posix(),
+        "inspection_file": report_path.relative_to(root).as_posix(),
         "notebook_id": notebook_id,
         "inspection_source_id": source_id,
         "inspection_sha256": sha256(report_path),
@@ -547,7 +629,7 @@ def finish_review_state(root, states, commit_sha, report_path, review_path,
 
 
 def review_one(root, paths, states, commit_sha, overwrite=False, dry_run=False):
-    report_path = root / ".ai" / "changes" / (commit_sha + "-inspection.md")
+    report_path = inspection_report_for(root, commit_sha)
     if not report_path.is_file():
         raise IntegrationError("No Change Inspector report exists for commit {}.".format(commit_sha))
     review_path = root / ".ai" / "reviews" / (commit_sha + "-review.md")
@@ -556,10 +638,13 @@ def review_one(root, paths, states, commit_sha, overwrite=False, dry_run=False):
     old = processed.get(commit_sha)
     report_hash = sha256(report_path)
     if old and not overwrite:
-        if review_matches_state(old, report_path, review_path):
+        historical_report = report_used_by_review(root, commit_sha, old) or report_path
+        if review_matches_state(old, historical_report, review_path):
             print("Already reviewed: {}".format(review_path.relative_to(root).as_posix()))
             return
+        ensure_inspection_current(root, report_path, commit_sha)
         raise IntegrationError("Review state or output does not match the current files; refusing to repeat or replace it: {}".format(review_path.relative_to(root)))
+    ensure_inspection_current(root, report_path, commit_sha)
     if review_path.exists() and not overwrite:
         raise IntegrationError("Review file already exists without matching processed state; refusing to overwrite: {}".format(review_path.relative_to(root)))
     if dry_run:
@@ -610,8 +695,9 @@ def review_one(root, paths, states, commit_sha, overwrite=False, dry_run=False):
     entry = {
         "commit_sha": commit_sha,
         "review_file": review_path.relative_to(root).as_posix(),
+        "inspection_file": report_path.relative_to(root).as_posix(),
         "notebook_id": notebook_id,
-        "inspection_source_id": inspection_source_id(root, states, commit_sha, report_hash),
+        "inspection_source_id": inspection_source_id(root, states, commit_sha, report_hash, report_path),
         "inspection_sha256": report_hash,
         "review_sha256": hashlib.sha256(content).hexdigest(),
         "status": "prepared",
@@ -641,12 +727,19 @@ def review_one(root, paths, states, commit_sha, overwrite=False, dry_run=False):
 
 def reconcile_review(root, paths, states, commit_sha):
     notebook_id = configured_notebook(paths, states)
-    report_path = root / ".ai" / "changes" / (commit_sha + "-inspection.md")
     review_path = root / ".ai" / "reviews" / (commit_sha + "-review.md")
-    if not report_path.is_file():
-        raise IntegrationError("No Change Inspector report exists for commit {}.".format(commit_sha))
     processed = states["reviews"].setdefault("reviews", {})
     entry = processed.get(commit_sha)
+    relative_report = entry.get("inspection_file") if isinstance(entry, dict) else None
+    if relative_report:
+        report_path = (root / Path(relative_report)).resolve()
+        changes_dir = (root / ".ai" / "changes").resolve()
+        if report_path.parent != changes_dir or not report_path.name.startswith(commit_sha + "-inspection"):
+            raise IntegrationError("Stored review references an invalid inspection path; state was not changed.")
+    else:
+        report_path = root / ".ai" / "changes" / (commit_sha + "-inspection.md")
+    if not report_path.is_file():
+        raise IntegrationError("No Change Inspector report exists for commit {}.".format(commit_sha))
     report_hash = sha256(report_path)
 
     if isinstance(entry, dict) and entry.get("status") == "prepared":
@@ -690,7 +783,7 @@ def reconcile_review(root, paths, states, commit_sha):
             print("Review state already matches {}.".format(review_path.relative_to(root).as_posix()))
             return
 
-    source_id = inspection_source_id(root, states, commit_sha, report_hash)
+    source_id = inspection_source_id(root, states, commit_sha, report_hash, report_path)
     extra = {}
     if isinstance(entry, dict) and entry.get("reviewed_at"):
         extra["reviewed_at"] = entry["reviewed_at"]
@@ -775,8 +868,10 @@ def cmd_review_pending(root, paths, states, args):
         entry = known.get(sha)
         if isinstance(entry, dict) and entry.get("status") == "prepared":
             raise IntegrationError("Review {} has a prepared recovery journal; run `reconcile {}` before reviewing again.".format(target.relative_to(root), sha))
-        if review_matches_state(entry, report, target):
+        historical_report = report_used_by_review(root, sha, entry)
+        if historical_report and review_matches_state(entry, historical_report, target):
             continue
+        ensure_inspection_current(root, report, sha)
         if target.exists() and not args.overwrite:
             raise IntegrationError("Review exists without matching state: {}; refusing to overwrite.".format(target.relative_to(root)))
         pending.append(sha)

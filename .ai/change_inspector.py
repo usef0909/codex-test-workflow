@@ -2,6 +2,7 @@
 """Deterministically inspect structural facts in Git changes to Godot files."""
 
 import argparse
+import hashlib
 import os
 import re
 import subprocess
@@ -11,6 +12,17 @@ from pathlib import Path
 
 class InspectorError(Exception):
     """An actionable Git, state, or filesystem error."""
+
+
+def implementation_fingerprint():
+    """Stable SHA-256 of this implementation, independent of checkout line endings."""
+    source = Path(__file__).read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(source).hexdigest()
+
+
+def embedded_fingerprint(text):
+    match = re.search(r"(?m)^- Inspector fingerprint: `sha256:([0-9a-f]{64})`$", text)
+    return match.group(1) if match else None
 
 
 def git(args, root, check=True):
@@ -112,7 +124,7 @@ def inspect_gd(text):
     facts = {
         "extends": [], "classes": [], "signals": [], "exports": [],
         "onready": [], "globals": [], "functions": [], "resources": [],
-        "nodes": [], "global_style": [], "class_types": [],
+        "nodes": [], "global_style": [], "class_types": [], "calls": [],
     }
     if text is None:
         return facts
@@ -131,8 +143,7 @@ def inspect_gd(text):
                 match = re.match(pattern, stripped)
                 if match:
                     if key == "functions":
-                        signature = stripped[:stripped.find(":") + 1]
-                        facts[key].append(signature)
+                        facts[key].append(match.group(0))
                     else:
                         facts[key].append(match.group(1))
             if re.match(r"^(?:@export\b|@export_)", stripped):
@@ -151,6 +162,9 @@ def inspect_gd(text):
             facts["nodes"].append(match.group(1))
         for match in re.finditer(r"\b([A-Z][A-Za-z0-9_]*)\.([A-Za-z_]\w*)\b", line):
             facts["global_style"].append(match.group(1) + "." + match.group(2))
+        if not stripped.startswith("func "):
+            for match in re.finditer(r"(?<![\w.])([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s*\(", stripped):
+                facts["calls"].append(match.group(1))
     for key in facts:
         if key in ("onready",):
             facts[key] = sorted(set(facts[key]))
@@ -164,12 +178,14 @@ def attrs(section):
 
 
 def inspect_scene(text):
-    result = {"header": None, "nodes": [], "external": [], "subresources": [], "connections": [], "scripts": [], "instances": []}
+    result = {"header": None, "nodes": [], "external": [], "subresources": [], "connections": [], "scripts": [], "instances": [], "node_resources": []}
     if text is None:
         return result
     current_node = None
     ext_paths = {}
     node_script_ids = []
+    node_resource_ids = []
+    node_instance_ids = []
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("[gd_scene "):
@@ -185,35 +201,111 @@ def inspect_scene(text):
             a = attrs(line)
             current_node = a
             result["nodes"].append(a)
-            instance = re.search(r'ExtResource\("([^"]+)"\)', a.get("instance", ""))
+            instance = re.search(r'\binstance\s*=\s*ExtResource\("([^"]+)"\)', line)
             if instance:
-                result["instances"].append((a.get("name", "?"), instance.group(1)))
+                node_instance_ids.append((a, instance.group(1)))
         elif line.startswith("[connection "):
             result["connections"].append(attrs(line))
         elif current_node is not None and line.startswith("script = ExtResource("):
             match = re.search(r'ExtResource\("([^"]+)"\)', line)
             if match:
                 node_script_ids.append((current_node.get("name", "?"), match.group(1)))
+        elif current_node is not None:
+            match = re.match(r'([A-Za-z_][A-Za-z0-9_]*)\s*=\s*ExtResource\("([^"]+)"\)', line)
+            if match:
+                node_resource_ids.append((current_node.get("name", "?"), match.group(1), match.group(2)))
     result["scripts"] = [(node, ext_paths.get(resource_id, "")) for node, resource_id in node_script_ids]
-    result["instances"] = [(node, ext_paths.get(resource_id, "")) for node, resource_id in result["instances"]]
+    result["instances"] = []
+    for node, resource_id in node_instance_ids:
+        instance_path = ext_paths.get(resource_id, "")
+        node["instance"] = instance_path
+        result["instances"].append((node.get("name", "?"), instance_path))
+    result["node_resources"] = [(node, prop, ext_paths.get(resource_id, "")) for node, prop, resource_id in node_resource_ids]
     return result
 
 
 def inspect_project(text):
     data = {}
     section = ""
+    pending_input = None
+    input_lines = []
     if text is None:
         return data
     for line in text.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith(";") or stripped.startswith("#"):
             continue
+        if pending_input is not None:
+            if stripped == "}":
+                data[("input", pending_input)] = "\n".join(input_lines)
+                pending_input = None
+                input_lines = []
+            else:
+                input_lines.append(stripped)
+            continue
         if stripped.startswith("[") and stripped.endswith("]"):
             section = stripped[1:-1]
+        elif section == "input" and "=" in stripped:
+            key, value = stripped.split("=", 1)
+            key, value = key.strip(), value.strip()
+            if value == "{":
+                pending_input = key
+            else:
+                data[(section, key)] = value
         elif "=" in stripped:
             key, value = stripped.split("=", 1)
             data[(section, key.strip())] = value.strip()
     return data
+
+
+def key_name(code):
+    """Return a readable name for printable Godot key-code values."""
+    try:
+        number = int(code)
+    except (TypeError, ValueError):
+        return str(code)
+    if number == 32:
+        return "Space"
+    if 33 <= number <= 126:
+        character = chr(number)
+        return character.upper() if character.isalnum() else repr(character)
+    return None
+
+
+def input_action_description(value):
+    """Summarize InputEvent bindings present in a project.godot action value."""
+    if value is None:
+        return "(absent)"
+    descriptions = []
+    for event in re.findall(r"Object\(\s*(InputEvent[A-Za-z0-9_]*)\s*,([^)]*)\)", value):
+        event_type, properties = event
+        if event_type != "InputEventKey":
+            descriptions.append(event_type)
+            continue
+        fields = re.findall(
+            r'["\']?(physical_keycode|keycode|key_label|unicode)["\']?\s*:\s*'
+            r'("[^"]*"|\'[^\']*\'|-?\d+|[A-Za-z_][A-Za-z0-9_]*)',
+            properties,
+        )
+        props = {name: raw.strip("\"'") for name, raw in fields}
+        selected = None
+        label = None
+        for field, wording in (("physical_keycode", "physical key"),
+                               ("keycode", "key"),
+                               ("key_label", "key label"),
+                               ("unicode", "Unicode key")):
+            if props.get(field) not in (None, "", "0"):
+                selected, label = props[field], wording
+                break
+        if selected is None:
+            descriptions.append("InputEventKey (key not specified)")
+            continue
+        name = key_name(selected)
+        display = "{} ({})".format(name, selected) if name else str(selected)
+        descriptions.append("{} {}".format(label, display))
+    if descriptions:
+        return "; ".join(sorted(set(descriptions)))
+    return "input event binding not decoded"
 
 
 def inspect_resource(text):
@@ -273,6 +365,15 @@ def diff_values(before, after):
     return sorted(after - before), sorted(before - after)
 
 
+def scene_node_type(node):
+    """Return a declared node type or explicit scene-instance identity, never a guessed runtime type."""
+    if node.get("type"):
+        return node["type"]
+    if node.get("instance"):
+        return "instance of " + node["instance"]
+    return None
+
+
 def compare_simple(lines, title, before, after):
     added, removed = diff_values(before, after)
     if added or removed:
@@ -290,29 +391,41 @@ def scene_nodes_lines(scene):
     nodes = scene["nodes"]
     if not nodes:
         return ["No node declarations detected."]
-    by_parent = {}
-    for node in nodes:
-        by_parent.setdefault(node.get("parent", "."), []).append(node)
     output = []
     emitted = set()
 
+    def append_node(node, depth):
+        kind = scene_node_type(node)
+        key = (node.get("name"), node.get("parent"), kind)
+        if key in emitted:
+            return
+        emitted.add(key)
+        name = node.get("name", "?")
+        label = "{} ({})".format(name, kind) if kind else "{} (type not declared)".format(name)
+        output.append("  " * depth + "- " + label)
+
     def visit(parent, depth):
-        for node in by_parent.get(parent, []):
-            key = (node.get("name"), node.get("parent"), node.get("type"))
+        for node in nodes:
+            node_parent = node.get("parent")
+            if node_parent != parent or node_parent is None:
+                continue
+            key = (node.get("name"), node.get("parent"), scene_node_type(node))
             if key in emitted:
                 continue
-            emitted.add(key)
-            output.append("  " * depth + "- {} ({})".format(node.get("name", "?"), node.get("type", "?")))
+            append_node(node, depth)
             visit(node.get("name", ""), depth + 1)
 
-    roots = [n for n in nodes if n.get("parent") in (None, ".")]
-    for node in roots:
-        visit(node.get("parent", "."), 0)
-        break
+    roots = [n for n in nodes if "parent" not in n]
+    if roots:
+        append_node(roots[0], 0)
+        visit(".", 1)
     for node in nodes:
-        key = (node.get("name"), node.get("parent"), node.get("type"))
+        key = (node.get("name"), node.get("parent"), scene_node_type(node))
         if key not in emitted:
-            output.append("- {} ({}) [parent: {}]".format(node.get("name", "?"), node.get("type", "?"), node.get("parent", "?")))
+            name = node.get("name", "?")
+            kind = scene_node_type(node)
+            label = "{} ({})".format(name, kind) if kind else "{} (type not declared)".format(name)
+            output.append("- {} [parent: {}]".format(label, node.get("parent", "?")))
     return output
 
 
@@ -347,6 +460,7 @@ def inspect_one_file(lines, kind, status, old_path, new_path, old_sha, new_sha, 
             for label, key in (("Extends", "extends"), ("Class name", "classes"), ("Signals", "signals"),
                                ("Export declarations", "exports"), ("Onready variables", "onready"),
                                ("Top-level variables/constants", "globals"), ("Functions", "functions"),
+                               ("Detected calls", "calls"),
                                ("Node references", "nodes"), ("Resource dependencies", "resources"),
                                ("Detected global-style references", "global_style")):
                 section_list(lines, label + ":", b[key], lambda x: md(x[0] + " — " + x[1]) if isinstance(x, tuple) else md(x))
@@ -355,19 +469,26 @@ def inspect_one_file(lines, kind, status, old_path, new_path, old_sha, new_sha, 
         a, b = inspect_scene(before), inspect_scene(after)
         if status in ("Modified", "Renamed"):
             lines.extend(["#### Structural Changes", ""])
-            old_nodes = {(n.get("name"), n.get("type"), n.get("parent")) for n in a["nodes"]}
-            new_nodes = {(n.get("name"), n.get("type"), n.get("parent")) for n in b["nodes"]}
+            old_nodes = {(n.get("name"), scene_node_type(n), n.get("parent")) for n in a["nodes"]}
+            new_nodes = {(n.get("name"), scene_node_type(n), n.get("parent")) for n in b["nodes"]}
             add, rem = sorted(new_nodes - old_nodes), sorted(old_nodes - new_nodes)
+            old_instances = dict(a["instances"])
+            new_instances = dict(b["instances"])
+            def describe_node(node, instances):
+                name, node_type, parent = node
+                label = node_type or "type not declared"
+                return "{} ({}) under {}".format(name, label, parent)
             if add:
-                section_list(lines, "Added nodes:", add, lambda x: md("{} ({}) under {}".format(x[0], x[1], x[2])))
+                section_list(lines, "Added nodes:", add, lambda x: md(describe_node(x, new_instances)))
             if rem:
-                section_list(lines, "Removed nodes:", rem, lambda x: md("{} ({}) under {}".format(x[0], x[1], x[2])))
+                section_list(lines, "Removed nodes:", rem, lambda x: md(describe_node(x, old_instances)))
             compare_simple(lines, "External resources", [repr(sorted(x.items())) for x in a["external"]], [repr(sorted(x.items())) for x in b["external"]])
             compare_simple(lines, "Signal connections", ["{}.{} → {}.{}".format(x.get("from", "?"), x.get("signal", "?"), x.get("to", "?"), x.get("method", "?")) for x in a["connections"]], ["{}.{} → {}.{}".format(x.get("from", "?"), x.get("signal", "?"), x.get("to", "?"), x.get("method", "?")) for x in b["connections"]])
         lines.extend(["#### Scene Structure", ""])
         lines.extend(scene_nodes_lines(b) if after is not None else ["No new version (scene deleted)."])
         lines.append("")
         section_list(lines, "#### Scripts", ["{} → {}".format(n, p) for n, p in b["scripts"]])
+        section_list(lines, "#### Node Resource Assignments", ["{}.{} → {}".format(n, prop, path) for n, prop, path in b["node_resources"]])
         section_list(lines, "#### Instanced Scenes", ["{} → {}".format(n, p) for n, p in b["instances"]])
         section_list(lines, "#### External Resources", ["{} {} ({})".format(x.get("type", "?"), x.get("path", "?"), x.get("id", "?")) for x in b["external"]])
         section_list(lines, "#### Subresources", ["{} ({})".format(x.get("type", "?"), x.get("id", "?")) for x in b["subresources"]])
@@ -389,9 +510,14 @@ def inspect_one_file(lines, kind, status, old_path, new_path, old_sha, new_sha, 
                     relevant.append((sect, key, a.get((sect, key)), b.get((sect, key))))
             if relevant:
                 for sect, key, old_value, new_value in relevant:
+                    if sect == "input":
+                        old_display = input_action_description(old_value)
+                        new_display = input_action_description(new_value)
+                    else:
+                        old_display = old_value if old_value is not None else "(absent)"
+                        new_display = new_value if new_value is not None else "(absent)"
                     lines.append("- [{}] {}: {} → {}".format(
-                        sect, key, md(old_value if old_value is not None else "(absent)"),
-                        md(new_value if new_value is not None else "(absent)")))
+                        sect, key, md(old_display), md(new_display)))
             else:
                 lines.append("No targeted configuration changes detected.")
             autoloads = [(key, value) for (sect, key), value in sorted(b.items()) if sect == "autoload"]
@@ -421,7 +547,9 @@ def inspection_record(new_sha, old_sha, root):
              "- Compared from: {}".format(md(old_sha)),
              "- Author: {}".format(md(info["author"])),
              "- Date: {}".format(md(info["date"])),
-             "- Subject: {}".format(md(info["subject"])), "", "## Files Inspected", ""]
+             "- Subject: {}".format(md(info["subject"])),
+             "- Inspector fingerprint: `sha256:{}`".format(implementation_fingerprint()),
+             "", "## Files Inspected", ""]
     if not paths:
         lines.extend(["No changed paths between the selected commits.", ""])
     for status, old_path, new_path in paths:
@@ -452,23 +580,47 @@ def inspection_path(root, sha):
     return root / ".ai" / "changes" / (sha + "-inspection.md")
 
 
+def versioned_inspection_path(root, sha, fingerprint=None):
+    fingerprint = fingerprint or implementation_fingerprint()
+    return root / ".ai" / "changes" / (sha + "-inspection-" + fingerprint + ".md")
+
+
+def report_uses_current_inspector(path):
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return False
+    return embedded_fingerprint(text) == implementation_fingerprint()
+
+
 def write_new(path, contents):
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
         with path.open("xb") as out:
-            out.write(contents.encode("utf-8", "backslashreplace"))
+            out.write(contents.encode("utf-8"))
     except FileExistsError:
         raise InspectorError("Inspection record already exists; refusing to overwrite: {}".format(path))
 
 
-def inspect_range(old_ref, new_ref, root):
+def inspect_range(old_ref, new_ref, root, output=None, versioned=False):
     old_sha, new_sha = resolve(old_ref, root), resolve(new_ref, root)
-    target = inspection_path(root, new_sha)
+    if output and versioned:
+        raise InspectorError("Use either --output or --versioned, not both.")
+    target = Path(output).expanduser() if output else (
+        versioned_inspection_path(root, new_sha) if versioned else inspection_path(root, new_sha)
+    )
+    if not target.is_absolute():
+        target = root / target
+    target = target.resolve()
     if target.exists():
         raise InspectorError("Inspection record already exists; refusing to overwrite: {}".format(target.relative_to(root)))
     report = inspection_record(new_sha, old_sha, root)
     write_new(target, report)
-    print("Wrote {}".format(target.relative_to(root).as_posix()))
+    try:
+        label = target.relative_to(root).as_posix()
+    except ValueError:
+        label = str(target)
+    print("Wrote {}".format(label))
 
 
 def automatic(root):
@@ -489,12 +641,20 @@ def automatic(root):
     # Analyzer records are the durable queue: state may already equal HEAD because
     # the analyzer runs before this inspector. Missing inspection files are pending.
     pending = []
+    current_fingerprint = implementation_fingerprint()
     for sha, source_record in record_commits(root):
         resolve(sha, root)
         in_head = git(["merge-base", "--is-ancestor", sha, head], root, check=False)
         if in_head.returncode != 0:
             raise InspectorError("Analyzer record {} is not on current HEAD history; refusing ambiguous automatic inspection.".format(sha))
-        target = inspection_path(root, sha)
+        canonical = inspection_path(root, sha)
+        if canonical.exists() and report_uses_current_inspector(canonical):
+            continue
+        target = versioned_inspection_path(root, sha, current_fingerprint) if canonical.exists() else canonical
+        if target.exists():
+            if report_uses_current_inspector(target):
+                continue
+            raise InspectorError("Versioned inspection path exists but does not match the current Inspector; refusing to overwrite: {}".format(target.relative_to(root)))
         if not target.exists():
             info = commit_info(sha, root)
             parents = info["parents"]
@@ -520,15 +680,21 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Inspect structural facts in Git changes.")
     parser.add_argument("old_commit", nargs="?", help="previous commit")
     parser.add_argument("new_commit", nargs="?", help="new commit")
+    parser.add_argument("--output", help="write a manual inspection to this new path instead of the canonical commit report")
+    parser.add_argument("--versioned", action="store_true", help="write a new fingerprint-named report without replacing a canonical report")
     args = parser.parse_args(argv)
     if (args.old_commit is None) != (args.new_commit is None):
         parser.error("supply both commit references or neither for automatic mode")
+    if args.output and args.old_commit is None:
+        parser.error("--output is available only with two commit references")
+    if args.versioned and args.old_commit is None:
+        parser.error("--versioned is available only with two commit references")
     try:
         root = find_root()
         if args.old_commit is None:
             automatic(root)
         else:
-            inspect_range(args.old_commit, args.new_commit, root)
+            inspect_range(args.old_commit, args.new_commit, root, args.output, args.versioned)
         return 0
     except (InspectorError, OSError) as exc:
         print("change_inspector: {}".format(exc), file=sys.stderr)

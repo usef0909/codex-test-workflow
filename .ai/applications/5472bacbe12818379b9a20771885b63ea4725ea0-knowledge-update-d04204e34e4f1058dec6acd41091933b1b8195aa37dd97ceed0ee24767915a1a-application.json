@@ -1,0 +1,22 @@
+{
+  "changes": [
+    {
+      "after_sha256": "ad8d1cb71dffebbaaf6ecdb9b14a38ad33c9e073344d65c6a73673ab316de608",
+      "before_sha256": "1038fdd6e74aebfb6e5cd6f40d267c2255457371734778b8235af41f25862ea5",
+      "facts": [
+        "Input action `move_down` is configured with `physical key S (83)`.",
+        "Input action `move_left` is configured with `physical key A (65)`.",
+        "Input action `move_right` is configured with `physical key D (68)`.",
+        "Input action `move_up` is configured with `physical key W (87)`."
+      ],
+      "path": "Knowledge/00 Project/Development Configuration.md",
+      "reason": "Added selected verified facts marked missing in the proposal under the specified existing heading; existing Knowledge prose was preserved.",
+      "status": "planned"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-d04204e34e4f1058dec6acd41091933b1b8195aa37dd97ceed0ee24767915a1a.md",
+  "proposal_sha256": "e5dc4122d3fef1783f262bec59fb275239c602ea0f76a09968c31843abe16c71",
+  "status": "applied"
+}

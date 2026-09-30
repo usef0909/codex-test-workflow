@@ -2,7 +2,7 @@
 
 ## Current shape
 
-The inspected Godot project has a minimal runtime entry point: `Main.tscn` is configured as the main scene, and its entire node tree is a single `Node2D` root named `Main`. It has no child nodes, attached script, or signal connections.
+`Main.tscn` remains configured as the main scene and has a `Main` `Node2D` root. It instances `Player.tscn` as node `Player`; `Player.tscn` has a `Player` `CharacterBody2D` root with `Player.gd` attached to node `Player`.
 
 This establishes the project's startup scene and root node type. It does not establish gameplay behavior, scene transitions, modules, or a broader runtime architecture.
 
@@ -17,6 +17,16 @@ This establishes the project's startup scene and root node type. It does not est
 
 The main-scene/root-node choice was made to satisfy the requested minimal project entry point. No further rationale or gameplay role is encoded in the project files.
 
+<!-- knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
+### Verified additions from commit `5472bacbe12818379b9a20771885b63ea4725ea0`
+- Input action `move_down` is configured with `physical key S (83)`.
+- Input action `move_left` is configured with `physical key A (65)`.
+- Input action `move_right` is configured with `physical key D (68)`.
+- Input action `move_up` is configured with `physical key W (87)`.
+- Node `Player` in `res://Player.tscn` attaches `res://Player.gd`.
+- `res://Main.tscn` instances `res://Player.tscn` as node `Player`.
+- `res://Player.gd` calls `Input.get_vector()`.
+<!-- /knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
 ## Repository layout
 
 The Godot project is contained in `(Game Name)/`. The project knowledge vault is a sibling repository directory at `Knowledge/`. Both are tracked in the same Git repository, but the vault is documentation and Obsidian configuration rather than part of the Godot project directory.

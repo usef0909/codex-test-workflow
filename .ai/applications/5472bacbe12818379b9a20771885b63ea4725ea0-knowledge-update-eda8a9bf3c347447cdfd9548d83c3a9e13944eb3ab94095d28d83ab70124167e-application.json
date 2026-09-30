@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "after_sha256": "780ed1de9ab387ddbced50b3a12cb0df3000c8822cac0e6e1a87a7983ef1b6ef",
+      "anchor": {
+        "heading_path": [
+          "# Code Inventory",
+          "## Tracked code"
+        ],
+        "occurrence": 1
+      },
+      "before_sha256": "110e16897220afd4dfb911147d9a98c55a561b8da091ac428087de3838590ce1",
+      "old_passage_sha256": "c43a72e9d73b139e5cafdd393c6f20e504fe905f540673e35e5ae3350e24537b",
+      "operation_id": "ef19ae943c9f4a78",
+      "operation_type": "REPLACE",
+      "path": "Knowledge/Code/Code Inventory.md",
+      "reason": "Replaced only the exact uniquely anchored passage with the renderer-validated Markdown.",
+      "replacement_sha256": "896e3a9ef32e0d8fd5d1893fd98b0e4a6e9b85842388ce6cd467fac6b8d57b1e",
+      "status": "applied"
+    }
+  ],
+  "commit_sha": "5472bacbe12818379b9a20771885b63ea4725ea0",
+  "inspector_fingerprint": "26ee1d1e4736e467d83b610471c70d6cced39e80d80867a84a2bdd70a7c1e33d",
+  "operation_id": "ef19ae943c9f4a78",
+  "operation_type": "REPLACE",
+  "proposal": ".ai/proposals/5472bacbe12818379b9a20771885b63ea4725ea0-knowledge-update-eda8a9bf3c347447cdfd9548d83c3a9e13944eb3ab94095d28d83ab70124167e.md",
+  "proposal_sha256": "f3def0427b249e6fba3eeb9201fadd3cf443734fe5e584ace9cd1c6fc15ac85b",
+  "status": "applied",
+  "target_path": "Knowledge/Code/Code Inventory.md"
+}

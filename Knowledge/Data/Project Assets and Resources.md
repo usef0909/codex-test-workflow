@@ -6,6 +6,12 @@
 
 The project contains a single scene resource. It defines a root node named `Main` of type `Node2D`, with no child nodes or attached script. `project.godot` references it as the main scene. See [[Scene Inventory]].
 
+<!-- knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
+### Verified additions from commit `5472bacbe12818379b9a20771885b63ea4725ea0`
+- Node `Player` in `res://Player.tscn` attaches `res://Player.gd`.
+- Node `Sprite2D` in `res://Player.tscn` assigns `res://icon.svg` to `texture`.
+- Scene `res://Player.tscn` exists.
+<!-- /knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
 ## Tracked asset
 
 ### `icon.svg`
