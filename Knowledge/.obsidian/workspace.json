@@ -11,10 +11,14 @@
             "id": "ef191d30fdcbecef",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Changes/Change Records.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Change Records"
             }
           }
         ]
@@ -27,10 +31,14 @@
             "id": "1c7a63844dd62570",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Decisions/Unestablished Decisions.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Unestablished Decisions"
             }
           }
         ]
@@ -200,16 +208,26 @@
       "bases:Create new base": false
     }
   },
-  "active": "9ee804e50e8c5e35",
+  "active": "1c7a63844dd62570",
   "lastOpenFiles": [
-    "Changes",
-    "Descisions",
-    "Data",
-    "Code",
-    "Scenes",
+    "Scenes/Scene Inventory.md",
+    "Changes/Change Records.md",
+    "00 Project/Development Configuration.md",
+    "00 Project/Project Overview.md",
+    "Welcome.md",
+    "Systems/Systems Inventory.md",
     "Systems",
+    "Scenes",
+    "Decisions/Unestablished Decisions.md",
+    "Decisions",
+    "Data/Project Assets and Resources.md",
+    "Data",
+    "Code/Code Inventory.md",
+    "Code",
+    "Changes",
+    "Architecture/Architecture Overview.md",
     "Architecture",
     "00 Project",
-    "Welcome.md"
+    "Descisions"
   ]
 }

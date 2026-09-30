@@ -1,0 +1,18 @@
+{
+  "notebook_id": "4ded9cbb-58f8-4c7c-bea0-4c9f15eecbe5",
+  "reviews": {
+    "4f2451f109a013d76e02da5e8dac8a388b9887c7": {
+      "commit_sha": "4f2451f109a013d76e02da5e8dac8a388b9887c7",
+      "completed_at": "2026-09-29T12:25:24.748469+00:00",
+      "inspection_sha256": "d4e826aa40b998ed4cd5b2216656b357d119843a7dd1b1c3f4c483407da8c42e",
+      "inspection_source_id": "d91264f9-c6c3-4898-aa11-5115f1ddeecb",
+      "notebook_id": "4ded9cbb-58f8-4c7c-bea0-4c9f15eecbe5",
+      "reconciled_at": "2026-09-29T12:25:24.747632+00:00",
+      "review_file": ".ai/reviews/4f2451f109a013d76e02da5e8dac8a388b9887c7-review.md",
+      "review_sha256": "0f70e512f120c1ad8b72d24317f4b608313e484da651d01742d3ba63bb7bd54a",
+      "reviewed_at": "2026-09-29T12:17:22.656429+00:00",
+      "status": "reconciled"
+    }
+  },
+  "schema_version": 1
+}

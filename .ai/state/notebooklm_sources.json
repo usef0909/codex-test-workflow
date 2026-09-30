@@ -1,0 +1,46 @@
+{
+  "notebook_id": "4ded9cbb-58f8-4c7c-bea0-4c9f15eecbe5",
+  "schema_version": 1,
+  "sources": {
+    ".ai/changes/4f2451f109a013d76e02da5e8dac8a388b9887c7-inspection.md": {
+      "sha256": "d4e826aa40b998ed4cd5b2216656b357d119843a7dd1b1c3f4c483407da8c42e",
+      "source_id": "d91264f9-c6c3-4898-aa11-5115f1ddeecb"
+    },
+    "Knowledge/00 Project/Development Configuration.md": {
+      "sha256": "987a4225fa7e6318861d4a8527737b9197689a79edc092994805d2337762fc38",
+      "source_id": "bec6de5a-9ef7-4f8b-a726-fc8982bf4052"
+    },
+    "Knowledge/00 Project/Project Overview.md": {
+      "sha256": "9ef44eba12f7e48d55e136982cda229d6a8c690b883a1de23c8a77ae350d9921",
+      "source_id": "982c4e53-edf4-4f1f-890f-8d6e58c1a4d0"
+    },
+    "Knowledge/Architecture/Architecture Overview.md": {
+      "sha256": "95b9b18ba8fcd55d7323c3cbc55c97bc359ba86ed2e949f13316d753e240c18a",
+      "source_id": "6f127edd-753c-4448-a6d9-9b8b679356ea"
+    },
+    "Knowledge/Changes/Change Records.md": {
+      "sha256": "45038d48ab6b7ec2726a0871fea4dc17f1d494ac4fc7d6cc6cc14fd9fc8902db",
+      "source_id": "f84b069f-bbff-47a2-a41d-debea9e113f9"
+    },
+    "Knowledge/Code/Code Inventory.md": {
+      "sha256": "b0ccb438890b887578753d7c18ec21b62076acfff434e2b67d7867e251647fb5",
+      "source_id": "e6af021d-4a3b-4a5e-b338-7eaf7ea8b760"
+    },
+    "Knowledge/Data/Project Assets and Resources.md": {
+      "sha256": "5599d902892fc4d798fce4aeb00d90cedf1a4d8e478cb4f6e78b871491cbf049",
+      "source_id": "cb3da1e6-385d-4f72-8033-13a9bac15e65"
+    },
+    "Knowledge/Decisions/Unestablished Decisions.md": {
+      "sha256": "361089dc0ec79e608c7aedec5c1c24667e97c8e6db8f951ad3dd77dfef48666c",
+      "source_id": "1f3ea2ff-2b77-4f18-a9f2-396f9291a0be"
+    },
+    "Knowledge/Scenes/Scene Inventory.md": {
+      "sha256": "ab9f914daaf737be70e7574b32adb410e507600c767caab56395c6b2c6500372",
+      "source_id": "b1d4189b-6431-42d2-a924-7377d9797b31"
+    },
+    "Knowledge/Systems/Systems Inventory.md": {
+      "sha256": "0d91b6c471dfbf00cbb27e095634fccae4427a37095d271b90a21ebf50132da7",
+      "source_id": "f270160f-15c1-41f5-90df-05b63ffeb504"
+    }
+  }
+}
