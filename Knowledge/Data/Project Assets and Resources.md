@@ -4,7 +4,7 @@
 
 ### `Main.tscn`
 
-The project contains a single scene resource. It defines a root node named `Main` of type `Node2D`, with no child nodes or attached script. `project.godot` references it as the main scene. See [[Scene Inventory]].
+`project.godot` selects `res://Main.tscn` as the main scene. `res://Main.tscn` has a `Main` `Node2D` root and instances `res://Player.tscn` as node `Player`. `res://Player.tscn` has a `Player` `CharacterBody2D` root. See [[Scene Inventory]].
 
 <!-- knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
 ### Verified additions from commit `5472bacbe12818379b9a20771885b63ea4725ea0`
@@ -24,6 +24,6 @@ Godot import metadata associates the SVG with the `texture` importer and `Compre
 
 ## Other resources and data
 
-No scripts, custom resource files, data files, or other runtime assets are present in the inspected project tree.
+`Player.tscn` attaches `Player.gd` to its `Player` root. Its `Sprite2D` node assigns `res://icon.svg` to `texture`.
 
 See [[Development Configuration]] for project settings and [[Architecture Overview]] for the verified icon/import relationship.
