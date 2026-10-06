@@ -2,15 +2,21 @@
 
 ## Main scene
 
-`Main.tscn` is the only tracked Godot scene in the inspected project. `project.godot` sets `run/main_scene` to `res://Main.tscn`, making it the configured project entry scene.
+`Main.tscn` is the configured Godot entry scene. `project.godot` sets `run/main_scene` to `res://Main.tscn`.
 
 ### Node tree
 
 ```text
-Main (Node2D)
+Main.tscn (entry scene)
+└─ Main (Node2D)
+   └─ Player (instance of res://Player.tscn)
+
+Player.tscn
+└─ Player (CharacterBody2D)
+   └─ Sprite2D (Sprite2D)
 ```
 
-The scene contains only the root node. It has no child nodes, attached script, or signal connections. No gameplay behavior is defined in this scene.
+`Main.tscn` instances `Player.tscn` as node `Player`. `Player.tscn` has a `Player` `CharacterBody2D` root and attaches `Player.gd` to that root.
 
 See [[Project Overview]] and [[Architecture Overview]].
 
@@ -20,4 +26,4 @@ See [[Project Overview]] and [[Architecture Overview]].
 - `res://Main.tscn` instances `res://Player.tscn` as node `Player`.
 - `res://Player.tscn` contains child `Sprite2D` (Sprite2D) under `.`.
 - `res://Player.tscn` has root `Player` of type `CharacterBody2D`.
-<!-- /knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36c40ca9afea5c611645abadb642 -->
+<!-- /knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36ca9afea5c611645abadb642 -->
