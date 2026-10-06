@@ -11,7 +11,7 @@ See [[Scene Inventory]], [[Architecture Overview]], and [[Development Configurat
 <!-- knowledge-applier:72aeea4cdb3bb1c509fc70a070ff5811bebc36ca9afea5c611645abadb642 -->
 ## Verified additions from commit `5472bacbe12818379b9a20771885b63ea4725ea0`
 - Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `added` of `(Game Name)/Player.gd`.
-- Commit `5472bacbe12818379b9b20771885b63ea4725ea0` records `added` of `(Game Name)/Player.tscn`.
+- Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `added` of `(Game Name)/Player.tscn`.
 - Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `modified` of `(Game Name)/Main.tscn`.
 - Commit `5472bacbe12818379b9a20771885b63ea4725ea0` records `modified` of `(Game Name)/project.godot`.
 
