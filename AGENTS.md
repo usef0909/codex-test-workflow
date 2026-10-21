@@ -199,41 +199,55 @@ After making changes:
 
 ---
 
-# Future Knowledge Automation
+# Codex Post-Change Workflow
 
-This project will eventually use an automated knowledge-review pipeline involving:
+For a completed, meaningful feature or fix, run the repository's automation after the implementation has been validated and committed. Do not run it on half-finished work.
 
-* Codex
-* The `Knowledge/` Obsidian vault
-* Git
-* NotebookLM
-* `notebooklm-py`
+1. **Inspect and implement:** follow the rules above; inspect relevant code, scenes, and Knowledge before editing.
+2. **Validate:** run the available project checks and tests. Clearly report anything that could not be tested, including Godot validation if Godot is unavailable.
+3. **Commit boundary:** the analyzer reads Git commits, not uncommitted diffs. If the feature is not committed, do not pretend the pipeline has analyzed it. Ask before creating a commit if the user has not authorized committing; never push without explicit permission.
+4. **Analyze and inspect:** from the repository root, run:
+   `python .ai/change_analyzer.py`
+   `python .ai/change_inspector.py`
+   Check their output and confirm the expected commit has a change record and a current, Inspector-fingerprinted report.
+5. **NotebookLM review:** run `python .ai/notebooklm_integration.py`. This requires the user's locally installed `notebooklm-py`, authentication, and an explicitly configured project notebook. If unavailable or authentication fails, stop this stage, report the exact blocker, and continue only with stages that do not assume a NotebookLM review exists.
+6. **Build proposal:** run `python .ai/knowledge_updater.py`. Inspect the generated proposal and its evidence. NotebookLM text is a recommendation, not authority; code, scenes, project settings, and Git evidence are authoritative.
+7. **Safely apply:** only for a proposal with status `UPDATE_PROPOSED` and a valid `## Application Plan`, first run:
+   `python .ai/knowledge_applier.py .ai/proposals/<proposal-file>.md --dry-run`
+   Review the result. If the dry run succeeds and each proposed fact is appropriate, run the same command without `--dry-run`. Do not apply `REQUIRES_REVIEW`, malformed, stale, or unsupported proposals. `NO_UPDATE_REQUIRED` does not need applying.
+8. **Sync updated Knowledge:** after any successful Knowledge application, run `python .ai/notebooklm_integration.py sync` so NotebookLM receives the updated Markdown. If NotebookLM is unavailable, leave the local Knowledge update intact and report that sync remains pending.
+9. **Review the final diff:** check `git diff --check`, inspect all modified files, and run relevant tests. Keep generated reports, proposals, review records, application records, and state files if they are part of the intended automation workflow. Never discard user changes.
+10. **Report honestly:** summarize the feature, validation, automation stages completed or blocked, Knowledge changes applied, and any remaining manual step. Do not claim a review, application, or sync succeeded without successful command output.
+
+Do not push changes unless the user explicitly asks. Do not apply Knowledge recommendations merely because NotebookLM suggested them. The Applier's checks are required safeguards, not a substitute for reviewing the proposal.
+
+# Knowledge Automation Overview
 
 The intended workflow is:
 
 ```text
 User request
     ↓
-Codex
+Codex reads project + Knowledge
     ↓
-Read project + Knowledge
+Implement feature and validate
     ↓
-Implement change
+Commit feature (only when authorized)
     ↓
-Validate
+Change Analyzer → Change Inspector
     ↓
-Analyze changes
+NotebookLM reviews the inspection + Knowledge
     ↓
-NotebookLM reviews project knowledge
+Knowledge Updater creates a verified proposal
     ↓
-Knowledge vault is updated
+Codex reviews proposal → Applier dry-run → apply if safe
     ↓
-Future Codex tasks use the updated knowledge
+Sync updated Knowledge to NotebookLM
+    ↓
+Review final diff and report results
 ```
 
-Until that automation is implemented, do not pretend that it exists or manually simulate its results.
-
----
+The Python scripts are local repository tools. NotebookLM stages depend on the user's local CLI installation, authentication, network access, and configured notebook. If any stage is blocked, report it and do not fabricate its output or skip a required safety check.
 
 # General Principle
 
